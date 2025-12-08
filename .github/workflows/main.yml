@@ -1,0 +1,40 @@
+name: Simple Python CI/CD
+
+# 1. Trigger: Chạy khi có hành động push code lên nhánh main
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Bước 1: Lấy code từ repository về máy ảo runner
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Bước 2: Cài đặt môi trường Python
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    # Bước 3: Build - Cài đặt thư viện kiểm tra lỗi (flake8)
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8
+
+    # Bước 4: Kiểm tra cú pháp (Linting)
+    - name: Lint with flake8
+      run: |
+        # Kiểm tra lỗi cú pháp hoặc lỗi logic cơ bản
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    # Bước 5: Deploy (Mô phỏng) - Lưu file code lại thành Artifact
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-app-artifact
+        path: app.py
